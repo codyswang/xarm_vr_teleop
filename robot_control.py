@@ -2,14 +2,38 @@ import numpy as np
 import triad_openvr as vr
 import time
 import transforms3d as t3d
-from vr_test import get_transforms
 import matplotlib.pyplot as plt
+import multiprocessing as mp
+from camera import Camera
 
 # For custom wrapper over xArm6 Python API
 # export PYTHONPATH=$PYTHONPATH:/home/erl-tianyu/dwait_local_repo/erl_xArm/
 import sys
-sys.path.append("/home/erl-xarm6/dwait_ws/erl_xArm/")
+sys.path.append("/home/erl-xarm6/cody_ws/erl_xArm/")
 from devices.xarm6 import XArmControl
+
+def get_transforms(vive_base_direction="perpendicular"):
+    assert vive_base_direction in ["perpendicular", "parallel"]
+    
+    # The physical controller rotations are made wrt frame 2 (robot base frame). While the pose is returned in frame 1 (Vive Base station frame).
+    if vive_base_direction == "parallel":
+        # Change axes from frame 1 (z towards base station and x left) to frame 2 (x away from base station and z up)
+        frame_1_to_2 = np.array([[0,  0,  -1], 
+                                [-1,  0,  0], 
+                                [0,  1,  0]])
+        init_ori_in_1 = np.diag([-1, -1, 1])
+    elif vive_base_direction == "perpendicular":
+        # Change axes from frame 1 (z towards base station and x left) to frame 2 (x left and z up)
+        frame_1_to_2 = np.array([[1,  0,  0], 
+                                 [0,  0,  -1], 
+                                 [0,  1,  0]])
+        init_ori_in_1 = np.array([[0, 0, -1],
+                                  [0, -1, 0],
+                                  [-1, 0, 0]])
+
+    # init_ori_in_1 = np.eye(3)
+    init_ori_in_2 = frame_1_to_2 @ init_ori_in_1
+    return frame_1_to_2, init_ori_in_1, init_ori_in_2
 
 
 def flush_controller_data(flush_count=50):
@@ -180,6 +204,7 @@ def robot_control_xarmapi(control_mode="joint_vel", use_position_pid=True, use_j
     fetch_init_poses()
     prev_actual_robot_jang = np.array(init_jangs)
 
+
     while True:
         loop_start_time = time.time()
 
@@ -293,6 +318,8 @@ def robot_control_xarmapi(control_mode="joint_vel", use_position_pid=True, use_j
         # duration += xarm_action_duration
         if loop_duration < 1/control_freq:
             time.sleep(1/control_freq - loop_duration)
+        elif loop_duration > 1 / control_freq:
+            print("Loop duration exceeded control frequency")
         duration += 1/control_freq
     xarm.reset()
     xarm.close()
@@ -322,7 +349,10 @@ if __name__ == "__main__":
         simulated = True
 
     v = vr.triad_openvr()
-    controller = v.devices["controller_1"]
+    try:
+        controller = v.devices["controller_1"]
+    except KeyError:
+        print("Warning: controller not found.")
     xarm = XArmControl(
         ip="192.168.1.242", 
         mode=mode,

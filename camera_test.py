@@ -12,13 +12,6 @@ def main():
         end = time.time()
         if end - start < target_duration:
             time.sleep(target_duration - (end - start))
-    # print(f"Average age of frames: {cam.age_sum / float(samples)}")
-    print(cam.age_sum.value / float(samples))
-    # time.sleep(20)
-    # print("stopping")
-    
-    # time.sleep(20)
-    # cam.save_frame()
 
 if __name__ == "__main__":
     main()

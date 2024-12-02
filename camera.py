@@ -28,9 +28,11 @@ class Camera:
         self.config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, fps)
 
         self.pipeline.start(self.config)
+        Path(self.write_path).mkdir(parents=True, exist_ok=True)
+        print(f"Saving frames to {Path(self.write_path).absolute()}.")
         # self.write_process = Process(target=self._save_frames, daemon=True)
         # self.write_process.start()
-        time.sleep(2)   # ensure pipeline is ready before capturing frames
+        time.sleep(4)   # ensure pipeline is ready before capturing frames
 
     def flush(self):
         for _ in range(self.fps):
@@ -71,17 +73,12 @@ class Camera:
         start = time.time()
         success, frames = self.pipeline.try_wait_for_frames()
         if not success:
-            print(f"Failed to get frame at \t{start}")
-            raise RuntimeError("Failed to get frame.")
+            print(f"Failed to get frame at time\t{start}")
+            return None
         color_frame = frames.get_color_frame()
-        self._save_frame(color_frame)
-        # self.queue.put(color_frame)
-        # self.queue.close()
-        end = time.time()
-        print(f"Frame age: \t\t{start - color_frame.get_timestamp() / 1000.}")
-        print(f"Done in : \t\t{end - start} seconds.")
-        with self.age_sum.get_lock():
-            self.age_sum.value += start - color_frame.get_timestamp() / 1000.
+        print(f"Got frame at time\t{start}")
+        # self._save_frame(color_frame)
+        return np.asanyarray(color_frame.get_data())
 
     def get_frame(self):
         """Parallelized wrapper for _get_frame."""

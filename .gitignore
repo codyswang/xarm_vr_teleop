@@ -1,3 +1,6 @@
+# Generated RLDS dataset
+test_data/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

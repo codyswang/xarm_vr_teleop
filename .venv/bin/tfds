@@ -1,8 +1,0 @@
-#!/home/erl-xarm6/cody_ws/xarm_vr_teleop/.venv/bin/python3
-# -*- coding: utf-8 -*-
-import re
-import sys
-from tensorflow_datasets.scripts.cli.main import launch_cli
-if __name__ == '__main__':
-    sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
-    sys.exit(launch_cli())

@@ -28,8 +28,8 @@ class Camera:
         self.config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, fps)
 
         self.pipeline.start(self.config)
-        Path(self.write_path).mkdir(parents=True, exist_ok=True)
-        print(f"Saving frames to {Path(self.write_path).absolute()}.")
+        # Path(self.write_path).mkdir(parents=True, exist_ok=True)
+        # print(f"Saving frames to {Path(self.write_path).absolute()}.")
         # self.write_process = Process(target=self._save_frames, daemon=True)
         # self.write_process.start()
         time.sleep(4)   # ensure pipeline is ready before capturing frames

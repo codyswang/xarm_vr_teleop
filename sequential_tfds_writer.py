@@ -36,7 +36,7 @@ class SequentialTFDSWriter(TFDSBackendWriter):
                 version: str = '0.0.1',
                 store_ds_metadata: bool = False,
                 **base_kwargs):
-        super()._init_(data_directory, ds_config, max_episodes_per_file, split_name, version, store_ds_metadata, **base_kwargs)
+        super().__init__(data_directory, ds_config, max_episodes_per_file, split_name, version, store_ds_metadata, **base_kwargs)
 
         self._current_episode_name = None
         self._prev_step = None
@@ -71,5 +71,5 @@ class SequentialTFDSWriter(TFDSBackendWriter):
 
     def close(self) -> None:
         self._write_and_reset_episode()
-        super()._sequential_writer.close_all()
+        self._sequential_writer.close_all()
         self._step_writer.close_all()

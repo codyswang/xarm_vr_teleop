@@ -13,7 +13,7 @@ class XArmEnvironment(dm_env.Environment):
     
     def step(self, action) -> dm_env.TimeStep:
         """Updates the environment according to the action."""
-        return dm_env.transition(reward=0.0, observation=self._observation())
+        return dm_env.transition(reward=0.0, observation=self._observation(), discount=1.0)
 
     # TODO implement specs
     def action_spec(self):

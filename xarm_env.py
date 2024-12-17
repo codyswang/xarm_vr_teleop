@@ -7,13 +7,27 @@ class XArmEnvironment(dm_env.Environment):
 
     def __init__(self):
         self._camera = Camera(fps=60)
+
+        self.cur_steps = 0
+        self.max_steps = 300
+        self._reset_next_step = True
     
     def reset(self) -> dm_env.TimeStep:
+        self._reset_next_step = False
+        self.cur_steps = 0
         return dm_env.restart(self._observation())
     
     def step(self, action) -> dm_env.TimeStep:
         """Updates the environment according to the action."""
-        return dm_env.transition(reward=0.0, observation=self._observation(), discount=1.0)
+        if self._reset_next_step:
+            return self.reset()
+
+        self.cur_steps += 1
+        if self.cur_steps >= self.max_steps:
+            self._reset_next_step = True
+            return dm_env.termination(reward=0.0, observation=self._observation())
+        else:
+            return dm_env.transition(reward=0.0, observation=self._observation())
 
     # TODO implement specs
     def action_spec(self):

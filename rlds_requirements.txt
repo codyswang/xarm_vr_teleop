@@ -8,7 +8,7 @@ decorator==5.1.1
 dm-env==1.6
 dm-tree==0.1.8
 docstring_parser==0.16
-envlogger==1.2
+envlogger[tfds]==1.2
 etils==1.11.0
 flatbuffers==24.3.25
 fsspec==2024.10.0
